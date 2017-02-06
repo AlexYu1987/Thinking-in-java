@@ -3,7 +3,7 @@ package org.yzj.thinking.generics.exercise7;
 import java.util.Iterator;
 
 /**
- * Created by y00240703 on 2017/2/6.
+ * Created by Alex Yu on 2017/2/6.
  */
 public class IterableFibonacci extends Fibonacci {
     private int n = 0;
