@@ -18,6 +18,7 @@ public class LinkedStack<T> {
         Node(T item, Node next) {
             this.item = item;
             this.next = next;
+			
         }
     }
 
