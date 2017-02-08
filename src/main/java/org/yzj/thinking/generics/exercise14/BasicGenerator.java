@@ -4,7 +4,7 @@ import org.yzj.thinking.generics.Generator;
 import org.yzj.thinking.generics.exercise7.Fibonacci;
 
 /**
- * Created by yuzhoujun on 2017/2/6.
+ * Created by Alex Yu on 2017/2/6.
  */
 public class BasicGenerator<T> implements Generator<T> {
 

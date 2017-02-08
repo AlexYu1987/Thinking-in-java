@@ -3,7 +3,7 @@ package org.yzj.thinking.generics;
 import java.util.Arrays;
 
 /**
- * Created by yuzhoujun on 2017/2/5.
+ * Created by Alex Yu on 2017/2/5.
  */
 public class LinkedStack<T> {
     private  class Node {
