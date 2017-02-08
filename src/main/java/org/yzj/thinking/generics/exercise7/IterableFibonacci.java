@@ -3,7 +3,7 @@ package org.yzj.thinking.generics.exercise7;
 import java.util.Iterator;
 
 /**
- * Created by Alex Yu on 2017/2/6.
+ * Created by AlexYu on 2017/2/6.
  */
 public class IterableFibonacci extends Fibonacci {
     private int n = 0;
@@ -15,6 +15,7 @@ public class IterableFibonacci extends Fibonacci {
     }
 
     public Iterator<Integer> iterator() {
+
         return new Iterator<Integer>() {
             public boolean hasNext() {
                 return n > 0;
@@ -23,6 +24,10 @@ public class IterableFibonacci extends Fibonacci {
             public Integer next() {
                 n--;
                 return IterableFibonacci.this.next();
+            }
+
+            public void remove() throws UnsupportedOperationException{
+                throw new UnsupportedOperationException("Unsupported method remove.");
             }
         };
     }
