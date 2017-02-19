@@ -1,126 +1,99 @@
-package org.yzj.hd.mr;
+package edu.yzj.vertica.hadoop;
 
+import com.vertica.hadoop.VerticaInputFormat;
+import com.vertica.hadoop.VerticaOutputFormat;
+import com.vertica.hadoop.VerticaRecord;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-
-import java.io.IOException;
-
-/**
- * Created by y00240703 on 2017/2/15.
- */
-public class MaxTemperatureMapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
-
-    private static final int MISSING = 9999;
-
-    @Override
-    public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
-                    Reporter reporter) throws IOException {
-        String line = value.toString();
-        String year = line.substring(15, 19);
-        int airTemperature;
-
-        if (line.charAt(87) == '+') {
-            airTemperature = Integer.parseInt(line.substring(88, 92));
-        } else {
-            airTemperature = Integer.parseInt(line.substring(87, 92));
-        }
-        String quality = line.substring(92, 93);
-
-        if (airTemperature != MISSING && quality.matches("[01459]")) {
-            output.collect(new Text(year), new IntWritable(airTemperature));
-        }
-    }
-}
-
-package org.yzj.hd.mr;
-
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-
-import java.io.IOException;
-import java.util.Iterator;
-
-/**
- * Created by y00240703 on 2017/2/15.
- */
-public class MaxTemperatureReducer extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
-    @Override
-    public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output,
-                       Reporter reporter) throws IOException {
-        int maxValue = Integer.MIN_VALUE;
-        while (values.hasNext()) {
-            maxValue = Math.max(maxValue, values.next().get());
-        }
-        output.collect(key, new IntWritable(maxValue));
-    }
-}
-
-package org.yzj.hd.mr;
-
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
+import java.io.IOException;
 
 /**
- * Created by y00240703 on 2017/2/15.
+ * Created by yuzhoujun on 2017/2/19.
  */
-public class MaxTemperatureDriver extends Configuration implements Tool {
+public class VerticaExample extends Configured implements Tool {
     @Override
-    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        return new AppConfigurationEntry[0];
-    }
+    public int run(String[] args) throws Exception{
+        Configuration conf = getConf();
 
-    @Override
-    public int run(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.err.printf("Usage: %s [generic options] <input> <output>\n", getClass().getSimpleName());
-            ToolRunner.printGenericCommandUsage(System.err);
-            return -1;
-        }
 
-        JobConf conf = new JobConf(getConf(), getClass());
-        conf.setJobName("Max temperature");
+        conf.set("mapreduce.job.tracker", "local");
+        conf.set("fs.default.name", "file:///");
+        conf.set("mapred.vertica.hostnames", "ali");
+        conf.set("mapred.vertica.port", "5433");
+        conf.set("mapred.vertica.username", "test");
+        conf.set("mapred.vertica.password", "123");
+        conf.set("mapred.vertica.password", "vertica");
 
-        FileInputFormat.addInputPath(conf, new Path(args[0]));
-        FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+        Job job = new Job(conf);
+        job.setJobName("vertica");
 
-        conf.setOutputKeyClass(Text.class);
-        conf.setOutputValueClass(IntWritable.class);
-        conf.setMapperClass(MaxTemperatureMapper.class);
-        conf.setCombinerClass(MaxTemperatureReducer.class);
-        conf.setReducerClass(MaxTemperatureReducer.class);
+        job.setInputFormatClass(VerticaInputFormat.class);
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(VerticaRecord.class);
+
+        job.setJarByClass(VerticaExample.class);
+        job.setMapperClass(Map.class);
+        job.setReducerClass(Reduce.class);
+
+        VerticaOutputFormat.setOutput(job, "t_xl", true, "id int", "name varchar");
+        VerticaInputFormat.setInput(job, "select * from t_yzj");
+        job.waitForCompletion(true);
         return 0;
     }
 
-    @Override
-    public void setConf(org.apache.hadoop.conf.Configuration configuration) {
+    public static class Map extends Mapper<LongWritable, VerticaRecord, IntWritable, Text> {
 
+        public void map(LongWritable key, VerticaRecord value, Context context) throws
+                IOException, InterruptedException {
+            if (value.get(0) != null && value.get(1) != null) {
+                context.write(new IntWritable((int)value.get(0)), new Text((String)value.get(1)));
+            }
+        }
     }
 
-    @Override
-    public org.apache.hadoop.conf.Configuration getConf() {
-        return null;
+    public static class Reduce extends Reducer<IntWritable, Text, Text, VerticaRecord> {
+
+        private VerticaRecord record;
+
+        public void setup(Context context) throws IOException, InterruptedException {
+            super.setup(context);
+
+            try {
+                record = new VerticaRecord(context.getConfiguration());
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
+
+        public void reduce(IntWritable key, Iterable<Text> values, Context context) throws
+                IOException, InterruptedException {
+            if (record == null) {
+                throw new IOException("No output record found");
+            }
+
+            try {
+                record.set(0,1);
+                record.set(1,"xiaolu");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            context.write(new Text("test.t_xl"), record);
+        }
     }
 
     public static void main(String[] args) throws Exception {
-        int exitCode = ToolRunner.run(new MaxTemperatureDriver(), args);
-        System.exit(exitCode);
+        int res = ToolRunner.run(new Configuration(), new VerticaExample(), args);
     }
 }
