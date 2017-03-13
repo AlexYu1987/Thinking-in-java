@@ -1,0 +1,165 @@
+<html>
+	<head>
+		<title>Demo</title>
+		<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="fan.js"></script>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td>胡牌类型</td>
+				<td>
+					<select id="hupaileixing" onchange="doConstraint($(this).find('option:selected').attr('name'))">
+						<option value="0">普通</option>
+						<option name="tianhu" value="800">天胡</option>
+						<option name="dihu" value="20">地胡</option>
+						<option name="gangkai" value="40">杠开</option>
+						<option name="huakai" value="20">花开</option>
+					</select>
+				</td>
+				<td>听牌类型</td>
+				<td>
+					<select id="tingpaileixing" onchange="doConstraint($(this).find('option:selected').attr('name'))">
+						<option name="putong" value="0">普通</option>
+						<option name="quanqiu" value="60">全球</option>
+						<option name="yajue" value="40">压绝</option>
+						<option name="yadang" value="1">压档</option>
+						<option name="dudiao" value="1">独钓</option>
+						<option name="duzhan" value="1">独占</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>牌型</td>
+				<td>
+					<select id="paixing" onchange="doConstraint($(this).find('option:selected').attr('name'))">
+						<option name="xiaohu" value="0">小胡</option>
+						<option name="duiduihu" value="40">对对胡</option>
+						<option name="qixiaodui" value="80">七小对</option>
+						<option name="shuangqidui" value="180">双七对</option>
+					</select>
+				</td>
+				<td>花色</td>
+				<td>
+					<select id="huase">
+						<option value="0">普通</option>
+						<option value="60">清一色</option>
+						<option value="40">混一色</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>无花果</td>
+				<td>
+					<select id="wuhuaguo" onchange="doConstraint($(this).find('option:selected').attr('name'))">
+						<option value="0">否</option>
+						<option name="wuhuaguo" value="40">是</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>硬花</td>
+				<td>
+					<select id="yinghua">
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+					</select>
+				</td>
+				<td>软花</td>
+				<td>
+					<select id="ruanhua">
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>门清</td>
+				<td>
+					<select id="menqing">
+						<option value="0">否</option>
+						<option value="20">是</option>
+					</select>
+				</td>
+				<td>自摸</td>
+				<td>
+					<select id="zimo">
+						<option value="1">否</option>
+						<option value="3">是</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>比下胡</td>
+				<td>
+					<select id="bixiahu">
+						<option value="1">否</option>
+						<option value="2">是</option>
+					</select>
+				</td>
+				<td>跑20</td>
+				<td>
+					<select id="pao20">
+						<option value="20">是</option>
+						<option value="0">否</option>
+					</select>
+				</td>
+			</tr>
+		</table>
+
+		<table>
+			<tr>
+				<td>
+					<input type="button" value="重置">
+				</td>
+				<td>
+					<input type="button" value="计算" onclick="calculate()">
+				</td>
+				<td>
+					分数
+				</td>
+				<td>
+					<input type="text" id="result">
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
